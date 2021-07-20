@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.lifecycle.ViewModelProvider
 import com.gomdolstudio.musicapp_assistedinjection.data.entity.Lyric
 import com.gomdolstudio.musicapp_assistedinjection.data.entity.Song
 import com.gomdolstudio.musicapp_assistedinjection.databinding.FragmentLyricsBinding
@@ -17,6 +18,10 @@ class PlayerLyricsFragment: DaggerFragment() {
 
     @Inject
     lateinit var binding: FragmentLyricsBinding
+    @Inject
+    lateinit var viewModelProvider: ViewModelProvider
+    private lateinit var viewModel: PlayerViewModel
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -30,12 +35,13 @@ class PlayerLyricsFragment: DaggerFragment() {
 
         }
         binding.lifecycleOwner = this
+        binding.viewModel = viewModel
 
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        viewModel = viewModelProvider.get(PlayerViewModel::class.java)
     }
 
 }

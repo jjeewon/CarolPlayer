@@ -5,6 +5,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
     <data>
+        <variable
+            name="viewModel"
+            type="com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerViewModel" />
 
 
 
@@ -17,7 +20,7 @@
        <TextView
            android:layout_width="match_parent"
            android:layout_height="match_parent"
-           android:text="hello"/>
+           android:text="@{viewModel.singer}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

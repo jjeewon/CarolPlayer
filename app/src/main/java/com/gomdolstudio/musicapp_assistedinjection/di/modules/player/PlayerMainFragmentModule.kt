@@ -41,8 +41,8 @@ class PlayerMainFragmentModule {
 
     @Provides
     @FragmentScope
-    fun provideViewModelProvider(fragment:PlayerMainFragment, viewModelFactory: InjectingSavedStateViewModelFactory):ViewModelProvider{
-        return ViewModelProvider(fragment, viewModelFactory.create(fragment))
+    fun provideViewModelProvider(activity:PlayerActivity, viewModelFactory: InjectingSavedStateViewModelFactory):ViewModelProvider{
+        return ViewModelProvider(activity, viewModelFactory.create(activity))
     }
 
     @Provides
