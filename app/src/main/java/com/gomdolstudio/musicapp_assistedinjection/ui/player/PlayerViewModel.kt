@@ -78,6 +78,7 @@ constructor(
     private var fileUrl: String = ""
 
     private var playBtnClickEvent: MutableLiveData<Boolean> = MutableLiveData(isItPlaying)
+    private var lyricsItemClickEvent: MutableLiveData<Boolean> = MutableLiveData(false)
     fun loadMusic(){
         compositeDisposable.add(musicRetrofitService.getMusic()
             .subscribeOn(Schedulers.io())
@@ -86,6 +87,9 @@ constructor(
     }
     fun getPlayBtnClickEvent(): MutableLiveData<Boolean>{
         return playBtnClickEvent
+    }
+    fun getLyricsItemClickEvent(): MutableLiveData<Boolean>{
+        return lyricsItemClickEvent
     }
     fun getBound(): Boolean{
         return isItBound
@@ -171,6 +175,6 @@ constructor(
     interface Factory : AssistedSavedStateViewModelFactory<PlayerViewModel>
 
     override fun onItemClick(lyric: Lyric) {
-        Log.d("frfrfr","clicked")
+        lyricsItemClickEvent.value = true
     }
 }

@@ -38,10 +38,6 @@ class PlayerMainFragmentModule {
     }
 
 
-    /*
-
-     */
-
 
     @Provides
     @FragmentScope

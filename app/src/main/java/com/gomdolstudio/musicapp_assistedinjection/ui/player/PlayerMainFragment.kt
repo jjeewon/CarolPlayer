@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.gomdolstudio.musicapp_assistedinjection.R
 import com.gomdolstudio.musicapp_assistedinjection.data.entity.Lyric
 import com.gomdolstudio.musicapp_assistedinjection.data.entity.Song
 import com.gomdolstudio.musicapp_assistedinjection.data.service.Actions
@@ -23,6 +24,7 @@ import com.gomdolstudio.musicapp_assistedinjection.databinding.FragmentMainBindi
 import com.gomdolstudio.musicapp_assistedinjection.ui.player.lyrics.LyricsAdapter
 import com.gomdolstudio.musicapp_assistedinjection.util.binarySearchForLyricsPosition
 import dagger.android.support.DaggerFragment
+import kotlinx.android.synthetic.main.activity_player.view.*
 import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.coroutines.*
 
@@ -104,6 +106,10 @@ class PlayerMainFragment: DaggerFragment() {
                 .observe(
                         viewLifecycleOwner, Observer { startOrStop: Boolean -> startOrStopMusicService(startOrStop) }
                 )
+        viewModel.getLyricsItemClickEvent()
+                .observe(
+                        viewLifecycleOwner, Observer { clicked: Boolean -> moveFragment(clicked)}
+                )
 
         music_seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, userClicked: Boolean) {}
@@ -121,6 +127,10 @@ class PlayerMainFragment: DaggerFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = viewModelProvider.get(PlayerViewModel::class.java)
+    }
+
+    fun moveFragment(clicked: Boolean){
+        if (clicked) (activity as PlayerActivity).moveFragment(R.id.container, PlayerLyricsFragment())
     }
 
     fun startOrStopMusicService(startOrStop: Boolean) {
