@@ -21,7 +21,7 @@ constructor(
     @Assisted private val savedStateHandle: SavedStateHandle,
     private val musicRetrofitService: MusicRetrofitService
 
-) : ViewModel() {
+) : ViewModel(), Lyric.EventListener {
     private val compositeDisposable = CompositeDisposable()
     var timer = MutableLiveData<Int>(0)
         set(time){
@@ -109,7 +109,7 @@ constructor(
             val time = convertTimeToInt(timeLyrics[0].substring(1, timeLyrics[0].length))
             lyrics[time] = timeLyrics[1]
             timeList.add(time)
-            lyricList.add(Lyric(time,timeLyrics[1]))
+            lyricList.add(Lyric(time,timeLyrics[1],this))
         }
         liveLyricList.value = lyricList
         liveLyrics = Lyrics(lyrics,timeList)
@@ -169,4 +169,8 @@ constructor(
 
     @AssistedInject.Factory
     interface Factory : AssistedSavedStateViewModelFactory<PlayerViewModel>
+
+    override fun onItemClick(lyric: Lyric) {
+        Log.d("frfrfr","clicked")
+    }
 }

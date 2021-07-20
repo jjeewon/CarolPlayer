@@ -178,7 +178,7 @@ class PlayerMainFragment: DaggerFragment() {
     fun lyricsCoroutine(): Job = GlobalScope.launch(start = CoroutineStart.LAZY) {
         var result: Int = 0
         val array = viewModel.getLiveLyricList().value
-        if (array != null) array.add((Lyric(musicService.duration, "")))
+        if (array != null) array.add((Lyric(musicService.duration, "",viewModel)))
         while (musicService.millSec < musicService.duration) {
 
             Log.d("fragment", "${musicService.millSec}, : ${musicService.duration}")
