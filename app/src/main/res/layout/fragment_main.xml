@@ -5,7 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
     <data>
-
         <variable
             name="playOrStop"
             type="java.lang.Boolean" />
@@ -65,6 +64,8 @@
             android:id="@+id/lyric_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/thumbnail_image_view"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
@@ -78,6 +79,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginTop="20dp"
+
             />
         <TextView
             android:id="@+id/current_time_text_view"
@@ -87,7 +89,7 @@
             app:layout_constraintTop_toBottomOf="@id/music_seek_bar"
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
-            tools:text="00.01"
+            tools:text="@{viewModel.timer.toString()}"
 
             />
         <TextView
@@ -100,6 +102,7 @@
             android:layout_marginEnd="10dp"
             android:layout_marginTop="5dp"
             tools:text="01.00"
+            android:text="@{viewModel.duration.toString()}"
             />
         <Button
             android:id="@+id/play_button"

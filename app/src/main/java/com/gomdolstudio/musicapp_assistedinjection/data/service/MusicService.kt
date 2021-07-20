@@ -3,18 +3,44 @@ package com.gomdolstudio.musicapp_assistedinjection.data.service
 import android.app.Service
 import android.content.Intent
 import android.media.MediaPlayer
+import android.os.Binder
 import android.os.IBinder
+import android.util.Log
+import androidx.lifecycle.ViewModelProvider
+import com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerViewModel
+import dagger.android.DaggerService
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MusicService : Service(), MediaPlayer.OnPreparedListener {
+class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
+
     private var mp: MediaPlayer? = null
     var url: String = ""
+    var duration: Int = 0
+    var millSec: Int = 0
+    var isItPlaying: Boolean = false
+
+
+    private val binder = LocalBinder()
+
+    inner class LocalBinder : Binder() {
+        // Return this instance of LocalService so clients can call public methods
+        fun getService(): MusicService = this@MusicService
+    }
+
 
     override fun onBind(intent: Intent): IBinder? {
-        return null
+        isItPlaying = true
+        startMusicTimer()
+        return binder
     }
 
     override fun onCreate() {
         mp = MediaPlayer()
+        //viewModel = viewModelProvider.get(PlayerViewModel::class.java)
+
         super.onCreate()
 
     }
@@ -24,24 +50,27 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener {
 
         if (intent!!.hasExtra("url"))
             url = intent.getStringExtra("url").toString()
-
-
-        when (intent?.action){
+        if (intent!!.hasExtra("time"))
+            millSec = intent.getIntExtra("time",0)
+        if (intent!!.hasExtra("duration"))
+            duration = intent.getIntExtra("duration",0) * 10
+        when (intent.action){
             Actions.START_FOREGROUND -> {
                 startForegroundService(url)
             }
             Actions.STOP_FOREGROUND -> {
                 stopForegroundService()
             }
-
         }
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     // 서비스가 종료될 때 음악 종료
     override fun onDestroy() {
         super.onDestroy()
         mp?.release()
+        mp = null
+        isItPlaying = false
     }
 
     private fun startForegroundService(url: String){
@@ -71,6 +100,26 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener {
     }
 
     override fun onPrepared(mediaPlayer: MediaPlayer) {
+        mediaPlayer.seekTo(millSec*100)
+        Log.d("mpmp",millSec.toString())
         mediaPlayer.start()
     }
+
+    private fun startMusicTimer(){
+        GlobalScope.launch {
+            while ( this@MusicService.millSec < duration && isItPlaying){
+                delay(100)
+                this@MusicService.millSec += 1
+            }
+        }
+
+    }
+
+    fun movePlayerTimeBySeekerBar(millSec: Int){
+            this.millSec = millSec
+            mp?.seekTo(millSec*100)
+
+    }
+
+
 }
