@@ -21,37 +21,26 @@ constructor(
     @Assisted private val savedStateHandle: SavedStateHandle,
     private val musicRetrofitService: MusicRetrofitService
 
-) : ViewModel(), Lyric.EventListener {
+) : ViewModel(){
     private val compositeDisposable = CompositeDisposable()
     var timer = MutableLiveData<Int>(0)
         set(time){
             savedStateHandle.set("timer",time)
             field = time
         }
-    var isItBound = false
-        set(bound){
-            savedStateHandle.set("isItBound", bound)
-            field = bound
-        }
-
-    var isItPlaying = false
-        set(play){
-            savedStateHandle.set("isItPlaying", play)
-            field = play
-        }
 
 
-    init {
-        savedStateHandle.get<Boolean>("isItPlaying")?.run {
-            isItPlaying = this
-        }
+
+
+    var isItComback = false
+        set(comback){
+            savedStateHandle.set("isItComback",comback)
+            field = comback
     }
 
-    init {
-        savedStateHandle.get<Boolean>("isItBound")?.run {
-            isItBound = this
-        }
-    }
+
+
+
 
     init {
         savedStateHandle.get<Int>("timer")?.run {
@@ -59,9 +48,15 @@ constructor(
         }
     }
 
+    init {
+        savedStateHandle.get<Boolean>("isItComback")?.run {
+            isItComback = this
+        }
+    }
+    private var currentPos: Int = 0
     private var liveSong: MutableLiveData<Song> = MutableLiveData()
-    private lateinit var liveLyrics: Lyrics
-    private var liveLyricList: MutableLiveData<ArrayList<Lyric>> = MutableLiveData()
+
+    private var liveLyricsMap: MutableLiveData<Map<Int,String>> = MutableLiveData()
     private var singer: LiveData<String> = Transformations.map(liveSong){
             song -> song.singer
     }
@@ -77,58 +72,40 @@ constructor(
 
     private var fileUrl: String = ""
 
-    private var playBtnClickEvent: MutableLiveData<Boolean> = MutableLiveData(isItPlaying)
-    private var lyricsItemClickEvent: MutableLiveData<Boolean> = MutableLiveData(false)
+
     fun loadMusic(){
         compositeDisposable.add(musicRetrofitService.getMusic()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(liveSong::setValue))
     }
-    fun getPlayBtnClickEvent(): MutableLiveData<Boolean>{
-        return playBtnClickEvent
+
+    fun getliveLyricsMap(): MutableLiveData<Map<Int,String>>{
+        return liveLyricsMap
     }
-    fun getLyricsItemClickEvent(): MutableLiveData<Boolean>{
-        return lyricsItemClickEvent
-    }
-    fun getBound(): Boolean{
-        return isItBound
-    }
+
     fun getTime() : MutableLiveData<Int>{
         return timer
     }
 
-    fun getLiveLyricList(): MutableLiveData<ArrayList<Lyric>>{
-        return liveLyricList
+    fun setCurrentPos(currentPos: Int){
+        this.currentPos = currentPos
+    }
+    fun getCurrentPos(): Int{
+        return currentPos
     }
 
-    fun setLyrics(lyricsString: String){
-        var lyricList : ArrayList<Lyric> = arrayListOf()
+    fun setLyricsMap(lyricsString: String){
         var lyrics = mutableMapOf<Int,String>()
-        var timeList: ArrayList<Int> = arrayListOf()
-
         val array: List<String> = lyricsString.split("\n")
         for (a in array) {
             val timeLyrics = a.split("]")
             val time = convertTimeToInt(timeLyrics[0].substring(1, timeLyrics[0].length))
             lyrics[time] = timeLyrics[1]
-            timeList.add(time)
-            lyricList.add(Lyric(time,timeLyrics[1],this))
         }
-        liveLyricList.value = lyricList
-        liveLyrics = Lyrics(lyrics,timeList)
+        liveLyricsMap.value = lyrics
     }
 
-    /**
-     * playBtn 클릭 이벤트 구현
-     */
-    fun onPlayBtnClick(){
-        // Fragment로 이벤트를 전달하도록
-        // MutableLiveData의 값을 변경한다.
-        isItPlaying = (!isItPlaying)
-        playBtnClickEvent.value = isItPlaying
-
-    }
 
     override fun onCleared() {
         super.onCleared()
@@ -148,13 +125,6 @@ constructor(
     }
 
     fun getDuration(): LiveData<Int>{
-        /*
-         val total = Integer.parseInt(duration.value!!)
-        val min: Int = total / 60
-        val sec = total % 60
-         */
-        //if (duration.value != null) durationInt = Integer.parseInt(duration.value!!)
-
         return duration
     }
 
@@ -170,11 +140,7 @@ constructor(
             ""
     }
 
-
     @AssistedInject.Factory
     interface Factory : AssistedSavedStateViewModelFactory<PlayerViewModel>
 
-    override fun onItemClick(lyric: Lyric) {
-        lyricsItemClickEvent.value = true
-    }
 }

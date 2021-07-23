@@ -6,10 +6,11 @@
     >
     <data>
         <variable
-            name="viewModel"
+            name="playerViewModel"
             type="com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerViewModel" />
-
-
+        <variable
+            name="playerLyricsViewModel"
+            type="com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerLyricsViewModel" />
 
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,9 +19,65 @@
         >
 
        <TextView
-           android:layout_width="match_parent"
-           android:layout_height="match_parent"
-           android:text="@{viewModel.singer}"/>
+           android:id="@+id/title_text_view"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           app:layout_constraintLeft_toLeftOf="parent"
+           app:layout_constraintTop_toTopOf="parent"
+           app:layout_constraintBottom_toTopOf="@id/singer_text_view"
+           tools:text="음파음파 "
+           android:textSize="25sp"
+           android:layout_marginTop="10dp"
+           android:layout_marginStart="10dp"
+           android:text="@{playerViewModel.title}"/>
+        <TextView
+            android:id="@+id/singer_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="레드벨벳 "
+            android:textSize="20sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title_text_view"
+            app:layout_constraintBottom_toTopOf="@id/lyrics_recycler_view"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:text="@{playerViewModel.singer}"
+            />
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:tint="@color/black"
+            android:background="@drawable/ic_close"
+            android:onClick="@{() -> playerLyricsViewModel.onCancelBtnClick()}"
+            />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lyrics_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintTop_toBottomOf="@id/singer_text_view"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
+            />
+        <Button
+            android:id="@+id/skipToggleBtn"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/back_button"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="15dp"
+            android:tint="@color/black"
+            android:background="@drawable/ic_toggle_off"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

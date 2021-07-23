@@ -31,11 +31,6 @@ class LyricsAdapter @Inject constructor() : RecyclerView.Adapter<ViewBindingHold
     }
 
     override fun getItemCount(): Int {
-
-        if (items.size > 4)
-            return 4;
-
-
         return items.size;
     }
 

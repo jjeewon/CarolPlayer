@@ -1,7 +1,10 @@
 package com.gomdolstudio.musicapp_assistedinjection.ui.player
 
+import android.app.Activity
+import android.app.ActivityManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
@@ -11,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,7 +51,8 @@ class PlayerMainFragment: DaggerFragment() {
 
 
     private lateinit var musicService: MusicService
-    private lateinit var viewModel: PlayerViewModel
+    private lateinit var playerViewModel: PlayerViewModel
+    private lateinit var playerMainViewModel: PlayerMainViewModel
 
     private lateinit var job: Job
     private lateinit var seekBarJob: Job
@@ -57,13 +62,16 @@ class PlayerMainFragment: DaggerFragment() {
         override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
             val binder = service as MusicService.LocalBinder
             musicService = binder.getService()
-            viewModel.isItBound = true
+            playerMainViewModel.isItBound = true
+            job = lyricsCoroutine()
+            seekBarJob = seekBarCoroutine()
             job.start()
             seekBarJob.start()
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
-            viewModel.isItBound = false
+
+
         }
 
     }
@@ -73,20 +81,43 @@ class PlayerMainFragment: DaggerFragment() {
 
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = binding.root
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        if (playerViewModel.isItComback){
+            Log.d("comback","온거맞는데?")
+
+            val intent = Intent(activity, MusicService::class.java)
+            //intent.action = Actions.START_FOREGROUND
+            intent.putExtra("url", playerViewModel.getFileUrl())
+            intent.putExtra("time", playerViewModel.timer.value)
+            intent.putExtra("duration", playerViewModel.getDuration().value)
+            //activity?.startService(intent)
+            activity?.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+
+        }
+
+        Log.d("pppViewModel","${playerMainViewModel.isItPlaying}")
+
+        return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        playerMainViewModel.isItBound = false
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // binding.아이디.로 조작...
         if (savedInstanceState == null) {
-            viewModel.loadMusic()
+            playerViewModel.loadMusic()
         }
         binding.lifecycleOwner = this
-        binding.viewModel = viewModel
+        binding.playerMainViewModel = playerMainViewModel
+        binding.playerViewModel = playerViewModel
         binding.lyricRecyclerView.adapter = lyricsAdapter
         binding.lyricRecyclerView.layoutManager = layoutManager
 
 
-         viewModel.getLiveMusic()
+         playerViewModel.getLiveMusic()
                 .observe(
                         viewLifecycleOwner, androidx.lifecycle.Observer { song: Song? ->
                     setSongInfos(song!!)
@@ -94,19 +125,29 @@ class PlayerMainFragment: DaggerFragment() {
                 )
 
 
-
-        viewModel.getLiveLyricList()
+        playerViewModel.getliveLyricsMap()
                 .observe(
-                        viewLifecycleOwner, androidx.lifecycle.Observer { lyricsList: ArrayList<Lyric>? ->
-                    lyricsAdapter.setItems(lyricsList)
+                        viewLifecycleOwner, androidx.lifecycle.Observer { map: Map<Int,String>? ->
+                    playerMainViewModel.setLyrics(map!!)
                 }
                 )
 
-        viewModel.getPlayBtnClickEvent()
+
+        /*
+         viewModel.getLiveLyricList()
+                .observe(
+                        viewLifecycleOwner, androidx.lifecycle.Observer { lyricsList: ArrayList<Lyric>? -> /* */
+                    lyricsAdapter.setItems(lyricsList)
+                }
+                )
+         */
+
+
+        playerMainViewModel.getPlayBtnClickEvent()
                 .observe(
                         viewLifecycleOwner, Observer { startOrStop: Boolean -> startOrStopMusicService(startOrStop) }
                 )
-        viewModel.getLyricsItemClickEvent()
+        playerMainViewModel.getLyricsItemClickEvent()
                 .observe(
                         viewLifecycleOwner, Observer { clicked: Boolean -> moveFragment(clicked)}
                 )
@@ -116,9 +157,11 @@ class PlayerMainFragment: DaggerFragment() {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                val milSec = seekBar.progress * musicService.duration / 100
-                viewModel.timer.value = milSec
-                musicService.movePlayerTimeBySeekerBar(milSec)
+                if (playerMainViewModel.isItBound){
+                    val milSec = seekBar.progress * musicService.duration / 100
+                    playerViewModel.timer.value = milSec
+                    musicService.movePlayerTime(milSec)
+                }
             }
         })
 
@@ -126,35 +169,45 @@ class PlayerMainFragment: DaggerFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = viewModelProvider.get(PlayerViewModel::class.java)
+        playerViewModel = viewModelProvider.get(PlayerViewModel::class.java)
+        playerMainViewModel = viewModelProvider.get(PlayerMainViewModel::class.java)
     }
 
     fun moveFragment(clicked: Boolean){
-        if (clicked) (activity as PlayerActivity).moveFragment(R.id.container, PlayerLyricsFragment())
+        Log.d("moveFragment","${clicked}")
+        if (clicked == true && !playerViewModel.isItComback){
+            seekBarJob.cancel()
+            job.cancel()
+            (activity as PlayerActivity).moveFragment(R.id.container, PlayerLyricsFragment())
+        }
+        playerViewModel.isItComback = false
     }
 
     fun startOrStopMusicService(startOrStop: Boolean) {
+        Log.d("pppStartOrStop","${startOrStop}")
 
-        if (viewModel.getFileUrl() != "") {
+        if (playerViewModel.getFileUrl() != "" && !playerViewModel.isItComback) {
             val intent = Intent(activity, MusicService::class.java)
             val lyricsList = lyricsAdapter.getLyricsList()
             if (startOrStop == true) {
+                Log.d("frfr","여길 들어온다고??")
                 intent.action = Actions.START_FOREGROUND
-                intent.putExtra("url", viewModel.getFileUrl())
-                intent.putExtra("time", viewModel.timer.value)
-                intent.putExtra("duration", viewModel.getDuration().value)
+                intent.putExtra("url", playerViewModel.getFileUrl())
+                intent.putExtra("time", playerViewModel.timer.value)
+                intent.putExtra("duration", playerViewModel.getDuration().value)
                 activity?.startService(intent)
                 activity?.bindService(intent, connection, Context.BIND_AUTO_CREATE)
-                job = lyricsCoroutine()
-                seekBarJob = seekBarCoroutine()
 
             } else {
+                Log.d("pppStartOrStop","나 여기 왔다니까???")
                 job.cancel()
                 seekBarJob.cancel()
-                viewModel.timer.value = musicService.millSec
+                playerViewModel.timer.value = musicService.millSec
                 intent.action = Actions.STOP_FOREGROUND
-                activity?.stopService(intent)
                 activity?.unbindService(connection)
+                activity?.stopService(intent)
+
+
             }
         }
 
@@ -166,7 +219,7 @@ class PlayerMainFragment: DaggerFragment() {
     }
 
     fun setSongLyrics(lyricsString: String) {
-        viewModel.setLyrics(lyricsString)
+        playerViewModel.setLyricsMap(lyricsString)
     }
 
     fun setSongImage(imageUrl: String) {
@@ -186,24 +239,25 @@ class PlayerMainFragment: DaggerFragment() {
     }
 
     fun lyricsCoroutine(): Job = GlobalScope.launch(start = CoroutineStart.LAZY) {
-        var result: Int = 0
-        val array = viewModel.getLiveLyricList().value
-        if (array != null) array.add((Lyric(musicService.duration, "",viewModel)))
+        var position: Int = 0
+        val array = playerMainViewModel.getLiveLyricList().value
+        if (array != null) array.add((Lyric(musicService.duration, "",playerMainViewModel)))
         while (musicService.millSec < musicService.duration) {
-
-            Log.d("fragment", "${musicService.millSec}, : ${musicService.duration}")
-            val newResult = binarySearchForLyricsPosition(array!!, musicService.millSec)
-            if (newResult != result) {
+            val newPosition = binarySearchForLyricsPosition(array!!, musicService.millSec)
+            if (newPosition != position) {
+                playerViewModel.setCurrentPos(newPosition)
                 scope.launch {
-                    array.get(newResult).highlight = true
-                    lyricsAdapter.setItems(arrayListOf(array.get(newResult), array.get(newResult + 1)))
+                    array.get(newPosition).highlight = true
+                    if (newPosition != 0) array.get(newPosition-1).highlight = false
+                    lyricsAdapter.setItems(arrayListOf(array.get(newPosition), array.get(newPosition + 1)))
                     delay(50)
                 }
-                result = newResult
+                position = newPosition
             }
             delay(100)
         }
     }
+
 
 
 }

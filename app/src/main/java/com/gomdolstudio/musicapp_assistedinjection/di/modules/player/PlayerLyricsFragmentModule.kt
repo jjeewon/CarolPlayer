@@ -2,6 +2,7 @@ package com.gomdolstudio.musicapp_assistedinjection.di.modules.player
 
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.gomdolstudio.musicapp_assistedinjection.R
 import com.gomdolstudio.musicapp_assistedinjection.databinding.FragmentLyricsBinding
 import com.gomdolstudio.musicapp_assistedinjection.databinding.FragmentMainBinding
@@ -31,4 +32,11 @@ class PlayerLyricsFragmentModule {
     fun provideViewModelProvider(activity: PlayerActivity, viewModelFactory: InjectingSavedStateViewModelFactory): ViewModelProvider {
         return ViewModelProvider(activity, viewModelFactory.create(activity))
     }
+
+    @Provides
+    @FragmentScope
+    fun provideLinearLayoutManager(activity: PlayerActivity): LinearLayoutManager {
+        return LinearLayoutManager(activity)
+    }
+
 }

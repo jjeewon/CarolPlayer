@@ -13,6 +13,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import java.time.LocalDateTime
 
 class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
@@ -32,8 +33,10 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
 
     override fun onBind(intent: Intent): IBinder? {
-        isItPlaying = true
-        startMusicTimer()
+        if (!isItPlaying){
+            isItPlaying = true
+            startMusicTimer()
+        }
         return binder
     }
 
@@ -101,21 +104,21 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
     override fun onPrepared(mediaPlayer: MediaPlayer) {
         mediaPlayer.seekTo(millSec*100)
-        Log.d("mpmp",millSec.toString())
         mediaPlayer.start()
     }
 
     private fun startMusicTimer(){
         GlobalScope.launch {
             while ( this@MusicService.millSec < duration && isItPlaying){
-                delay(100)
+                val time: LocalDateTime = LocalDateTime.now()
+                delay(100L)
                 this@MusicService.millSec += 1
             }
         }
 
     }
 
-    fun movePlayerTimeBySeekerBar(millSec: Int){
+    fun movePlayerTime(millSec: Int){
             this.millSec = millSec
             mp?.seekTo(millSec*100)
 
