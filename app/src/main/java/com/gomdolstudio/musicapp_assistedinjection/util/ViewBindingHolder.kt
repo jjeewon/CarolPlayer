@@ -18,3 +18,4 @@ class ViewBindingHolder<VDB : ViewDataBinding?>(val binding: VDB) : RecyclerView
     }
 
 }
+

@@ -8,6 +8,7 @@ import com.gomdolstudio.musicapp_assistedinjection.data.entity.Lyric
 import com.gomdolstudio.musicapp_assistedinjection.data.entity.Lyrics
 import com.gomdolstudio.musicapp_assistedinjection.data.entity.Song
 import com.gomdolstudio.musicapp_assistedinjection.di.factory.AssistedSavedStateViewModelFactory
+import com.gomdolstudio.musicapp_assistedinjection.util.convertMillSecToString
 import com.gomdolstudio.musicapp_assistedinjection.util.convertTimeToInt
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -20,7 +21,6 @@ class PlayerViewModel @AssistedInject
 constructor(
     @Assisted private val savedStateHandle: SavedStateHandle,
     private val musicRetrofitService: MusicRetrofitService
-
 ) : ViewModel(){
     private val compositeDisposable = CompositeDisposable()
     var timer = MutableLiveData<Int>(0)
@@ -29,22 +29,16 @@ constructor(
             field = time
         }
 
-
-
-
     var isItComback = false
         set(comback){
             savedStateHandle.set("isItComback",comback)
             field = comback
     }
 
-
-
-
-
     init {
         savedStateHandle.get<Int>("timer")?.run {
-            timer.value = this
+            //timer.value = this
+            timer.postValue(this)
         }
     }
 
@@ -55,8 +49,17 @@ constructor(
     }
     private var currentPos: Int = 0
     private var liveSong: MutableLiveData<Song> = MutableLiveData()
+    fun loadMusic(){
+        compositeDisposable.add(musicRetrofitService.getMusic()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(liveSong::setValue))
+    }
 
+    var timeString: MutableLiveData<String> = MutableLiveData("00:00")
+    var durationString: MutableLiveData<String> = MutableLiveData("00:00")
     private var liveLyricsMap: MutableLiveData<Map<Int,String>> = MutableLiveData()
+
     private var singer: LiveData<String> = Transformations.map(liveSong){
             song -> song.singer
     }
@@ -66,19 +69,12 @@ constructor(
     private var title: LiveData<String> = Transformations.map(liveSong){
             song -> song.title
     }
-    private var duration: LiveData<Int> = Transformations.map(liveSong){
-        song -> Integer.parseInt(song.duration)
-    }
+
+    private var duration: MutableLiveData<Int> = MutableLiveData(0)
 
     private var fileUrl: String = ""
 
 
-    fun loadMusic(){
-        compositeDisposable.add(musicRetrofitService.getMusic()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(liveSong::setValue))
-    }
 
     fun getliveLyricsMap(): MutableLiveData<Map<Int,String>>{
         return liveLyricsMap
@@ -93,6 +89,12 @@ constructor(
     }
     fun getCurrentPos(): Int{
         return currentPos
+    }
+
+    fun setDuration(duration: Int){
+        this.duration.value = duration
+        this.durationString.value = convertMillSecToString(duration, false)
+
     }
 
     fun setLyricsMap(lyricsString: String){
@@ -124,7 +126,7 @@ constructor(
         return title
     }
 
-    fun getDuration(): LiveData<Int>{
+    fun getDuration(): MutableLiveData<Int>{
         return duration
     }
 

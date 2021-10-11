@@ -29,5 +29,5 @@ class PlayerActivity : DaggerAppCompatActivity() {
                 .replace(id, fragment)
                 .commit()
     }
-
 }
+

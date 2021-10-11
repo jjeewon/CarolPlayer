@@ -8,3 +8,4 @@ import javax.inject.Qualifier
     AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER,
     AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 annotation class ActivityContext
+

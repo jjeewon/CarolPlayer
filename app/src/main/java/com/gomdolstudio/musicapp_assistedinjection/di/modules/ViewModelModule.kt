@@ -31,7 +31,6 @@ abstract class ViewModelModule {
     @ViewModelKey(PlayerViewModel::class)
     abstract fun bindsPlayerViewModel(factory: PlayerViewModel.Factory): AssistedSavedStateViewModelFactory<out ViewModel>
 
-
     @Binds
     @IntoMap
     @ViewModelKey(PlayerMainViewModel::class)
@@ -42,5 +41,5 @@ abstract class ViewModelModule {
     @ViewModelKey(PlayerLyricsViewModel::class)
     abstract fun bindsPlayerLyricsViewModel(factory: PlayerLyricsViewModel.Factory): AssistedSavedStateViewModelFactory<out ViewModel>
 
-
 }
+

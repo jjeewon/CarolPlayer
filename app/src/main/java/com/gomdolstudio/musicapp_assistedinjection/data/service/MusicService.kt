@@ -50,6 +50,7 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
     // 서비스가 호출될 때마다 호출 (음악재생)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("sss","onStartCommand")
 
         if (intent!!.hasExtra("url"))
             url = intent.getStringExtra("url").toString()
@@ -70,6 +71,7 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
     // 서비스가 종료될 때 음악 종료
     override fun onDestroy() {
+        Log.d("sss","onDestroy")
         super.onDestroy()
         mp?.release()
         mp = null
@@ -92,7 +94,8 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
         startForeground(NOTIFICATION_ID, notification)
     }
 
-    private fun stopForegroundService(){
+    fun stopForegroundService(){
+        Log.d("ssss","왔다니까??")
         stopForeground(true)
         stopSelf()
     }

@@ -19,3 +19,4 @@ interface AppComponent : AndroidInjector<App> {
     abstract class Factory: AndroidInjector.Factory<App>{}
 
 }
+

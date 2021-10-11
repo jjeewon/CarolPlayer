@@ -12,3 +12,4 @@ abstract class ActivityModule {
     @ContributesAndroidInjector(modules = [(PlayerModule::class)])
     abstract fun getPlayerActivity() : PlayerActivity
 }
+

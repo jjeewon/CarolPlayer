@@ -154,15 +154,18 @@ class PlayerLyricsFragment: DaggerFragment() {
         var position: Int = 0
         while (musicService.millSec < musicService.duration) {
             val newPosition = binarySearchForLyricsPosition(array!!, musicService.millSec)
-            val midPositionInRecyclerView: Int = (layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()) / 2
-            if (newPosition != position && midPositionInRecyclerView < newPosition) {
-                scope.launch {
-                    binding.lyricsRecyclerView.smoothScrollToPosition(layoutManager.findLastVisibleItemPosition()+1)
-                    delay(500)
+            if (layoutManager != null){
+                val midPositionInRecyclerView: Int = (layoutManager.findFirstVisibleItemPosition() + layoutManager.findLastVisibleItemPosition()) / 2
+                if (newPosition != position && midPositionInRecyclerView < newPosition) {
+                    scope.launch {
+                        binding.lyricsRecyclerView.smoothScrollToPosition(layoutManager.findLastVisibleItemPosition()+1)
+                        delay(500)
+                    }
+                    position = newPosition
                 }
-                position = newPosition
+                delay(100)
             }
-            delay(100)
+
         }
     }
 

@@ -27,6 +27,7 @@ import com.gomdolstudio.musicapp_assistedinjection.data.service.MusicService
 import com.gomdolstudio.musicapp_assistedinjection.databinding.FragmentMainBinding
 import com.gomdolstudio.musicapp_assistedinjection.ui.player.lyrics.LyricsAdapter
 import com.gomdolstudio.musicapp_assistedinjection.util.binarySearchForLyricsPosition
+import com.gomdolstudio.musicapp_assistedinjection.util.convertMillSecToString
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.activity_player.view.*
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -53,10 +54,12 @@ class PlayerMainFragment: DaggerFragment() {
     private lateinit var musicService: MusicService
     private lateinit var playerViewModel: PlayerViewModel
     private lateinit var playerMainViewModel: PlayerMainViewModel
+    private lateinit var serviceBinder: IBinder
 
     private lateinit var job: Job
     private lateinit var seekBarJob: Job
     private val scope = CoroutineScope(Dispatchers.Main)
+
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
@@ -67,10 +70,11 @@ class PlayerMainFragment: DaggerFragment() {
             seekBarJob = seekBarCoroutine()
             job.start()
             seekBarJob.start()
+            Log.d("jjj","${musicService} : ")
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
-
+            Log.d("jjj","onServiceDisconnected")
 
         }
 
@@ -78,13 +82,15 @@ class PlayerMainFragment: DaggerFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        Log.d("sss","onAttach")
 
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        Log.d("sss","onCreateView")
+
         if (playerViewModel.isItComback){
             Log.d("comback","온거맞는데?")
-
             val intent = Intent(activity, MusicService::class.java)
             //intent.action = Actions.START_FOREGROUND
             intent.putExtra("url", playerViewModel.getFileUrl())
@@ -101,14 +107,19 @@ class PlayerMainFragment: DaggerFragment() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         playerMainViewModel.isItBound = false
+        super.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // binding.아이디.로 조작...
         if (savedInstanceState == null) {
             playerViewModel.loadMusic()
+
         }
         binding.lifecycleOwner = this
         binding.playerMainViewModel = playerMainViewModel
@@ -116,6 +127,9 @@ class PlayerMainFragment: DaggerFragment() {
         binding.lyricRecyclerView.adapter = lyricsAdapter
         binding.lyricRecyclerView.layoutManager = layoutManager
 
+        if (playerViewModel.isItComback){
+            play_button.setBackgroundResource(R.drawable.ic_pause)
+        }
 
          playerViewModel.getLiveMusic()
                 .observe(
@@ -176,19 +190,20 @@ class PlayerMainFragment: DaggerFragment() {
     fun moveFragment(clicked: Boolean){
         Log.d("moveFragment","${clicked}")
         if (clicked == true && !playerViewModel.isItComback){
+            Log.d("jjj 시작할","${musicService} : ${connection}")
             seekBarJob.cancel()
             job.cancel()
             (activity as PlayerActivity).moveFragment(R.id.container, PlayerLyricsFragment())
+
         }
         playerViewModel.isItComback = false
+
     }
 
     fun startOrStopMusicService(startOrStop: Boolean) {
-        Log.d("pppStartOrStop","${startOrStop}")
 
         if (playerViewModel.getFileUrl() != "" && !playerViewModel.isItComback) {
             val intent = Intent(activity, MusicService::class.java)
-            val lyricsList = lyricsAdapter.getLyricsList()
             if (startOrStop == true) {
                 Log.d("frfr","여길 들어온다고??")
                 intent.action = Actions.START_FOREGROUND
@@ -197,17 +212,18 @@ class PlayerMainFragment: DaggerFragment() {
                 intent.putExtra("duration", playerViewModel.getDuration().value)
                 activity?.startService(intent)
                 activity?.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+                play_button.setBackgroundResource(R.drawable.ic_pause)
 
             } else {
-                Log.d("pppStartOrStop","나 여기 왔다니까???")
+                Log.d("jjj","나 여기 왔다니까???")
+                Log.d("jjj","끝낼 때 ... ${musicService} : ${connection}")
                 job.cancel()
                 seekBarJob.cancel()
                 playerViewModel.timer.value = musicService.millSec
                 intent.action = Actions.STOP_FOREGROUND
                 activity?.unbindService(connection)
                 activity?.stopService(intent)
-
-
+                play_button.setBackgroundResource(R.drawable.ic_play)
             }
         }
 
@@ -216,6 +232,10 @@ class PlayerMainFragment: DaggerFragment() {
     fun setSongInfos(song: Song) {
         setSongLyrics(song.lyrics)
         setSongImage(song.image)
+        playerViewModel.setDuration(song.duration.toInt())
+        val array = playerMainViewModel.getLiveLyricList().value
+        lyricsAdapter.setItems(arrayListOf(array?.get(0)!!, array.get(1)))
+        //playerViewModel.durationString.value = convertMillSecToString(song.duration.toInt())
     }
 
     fun setSongLyrics(lyricsString: String) {
@@ -233,12 +253,14 @@ class PlayerMainFragment: DaggerFragment() {
         val conversionFactorForProgressBar: Double = 100.0 / duration.toDouble()
         while (musicService.millSec < duration) {
             music_seek_bar.progress = (musicService.millSec.toDouble() * conversionFactorForProgressBar).toInt()
+            playerViewModel.timeString.value = convertMillSecToString(musicService.millSec, true)
             delay(100)
         }
 
     }
 
     fun lyricsCoroutine(): Job = GlobalScope.launch(start = CoroutineStart.LAZY) {
+        Log.d("pppStartOrStop","${musicService} : ${musicService.duration}")
         var position: Int = 0
         val array = playerMainViewModel.getLiveLyricList().value
         if (array != null) array.add((Lyric(musicService.duration, "",playerMainViewModel)))
@@ -261,3 +283,4 @@ class PlayerMainFragment: DaggerFragment() {
 
 
 }
+
