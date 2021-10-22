@@ -57,7 +57,7 @@ data class Song(
 
 
 <!-- Table -->
-|POJO|Type|Description|
+|Song|Type|Description|
 |--|--|--|
 |`singer`|String||
 |`album`|String||
