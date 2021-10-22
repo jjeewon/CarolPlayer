@@ -16,14 +16,12 @@ The android app lets you:
 * Play a specific lyric section If you touch the area
 * Completely ad-free
 
-## ScreenShots
-작성중..
+
 ## Permissions
 On Android versions prior to Android 6.0, CovidInfoApp requires the following permissions:
 * Full Network Access.
 
 ## Music data request API
-<h4> COVID-19 Vaccination Status API(코로나 백신 예방 접종 통계) </h4> 
 
 ```html
 GET /2020-flo/song.json
