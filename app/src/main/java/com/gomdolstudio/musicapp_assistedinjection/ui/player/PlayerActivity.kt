@@ -9,7 +9,6 @@ import com.gomdolstudio.musicapp_assistedinjection.R
 import com.gomdolstudio.musicapp_assistedinjection.databinding.ActivityPlayerBinding
 import dagger.android.DaggerActivity
 import dagger.android.support.DaggerAppCompatActivity
-import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
 class PlayerActivity : DaggerAppCompatActivity() {
@@ -22,12 +21,8 @@ class PlayerActivity : DaggerAppCompatActivity() {
         supportFragmentManager.beginTransaction()
                 .replace(R.id.container, PlayerMainFragment())
                 .commitNow()
+
+
     }
 
-    fun moveFragment(id: Int, fragment: DaggerFragment){
-        supportFragmentManager.beginTransaction()
-                .replace(id, fragment)
-                .commit()
-    }
 }
-

@@ -9,6 +9,5 @@ import androidx.lifecycle.ViewModel
  */
 interface AssistedSavedStateViewModelFactory<T: ViewModel> {
     fun create(savedStateHandle: SavedStateHandle): T // ViewModel을 확장한 제네릭 T를 반환
-    // SavedStateHandle은 Dagger Graph에 포함시키지 못하는 동적 파라미터이므로 create의 매개변수로 받음
+    // SavedStateHandle은 Dagger Graph에 포함시키지 못하는 동적파라미터이므로 create의 매개변수로 받음
 }
-

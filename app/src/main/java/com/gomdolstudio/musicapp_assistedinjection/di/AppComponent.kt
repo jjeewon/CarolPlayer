@@ -14,9 +14,13 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [(AndroidSupportInjectionModule::class), (ServiceModule::class), (ActivityModule::class), (AppModule::class)])
 interface AppComponent : AndroidInjector<App> {
-
+    /*
+    @Component.Factory
+    interface Factory{
+        fun create(@BindsInstance applicationContext: Context) : AppComponent
+    }
+     */
     @Component.Factory
     abstract class Factory: AndroidInjector.Factory<App>{}
 
 }
-

@@ -9,11 +9,9 @@
             name="playOrStop"
             type="java.lang.Boolean" />
         <variable
-            name="playerMainViewModel"
-            type="com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerMainViewModel" />
-        <variable
-            name="playerViewModel"
+            name="viewModel"
             type="com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerViewModel" />
+
 
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,55 +24,49 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:textSize="20sp"
-            tools:text="@{playerViewModel.title}"
+            android:textSize="25sp"
+            tools:text="@{viewModel.title}"
             android:text=""
-            android:textColor="#000000"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/singer_text_view"
             />
+        <!--bottomtotopof!! -->
+
+
 
         <TextView
             android:id="@+id/singer_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="@{playerViewModel.singer}"
-            android:textColor="#000000"
-            android:textSize="17sp"
+            tools:text="@{viewModel.singer}"
+            android:textSize="20sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title_text_view"
-            app:layout_constraintBottom_toTopOf="@id/thumbnail_card_view"
+            app:layout_constraintBottom_toTopOf="@id/thumbnail_image_view"
             />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/thumbnail_card_view"
+        <!-- bottomtotopof -->
+        <ImageView
+            android:id="@+id/thumbnail_image_view"
             android:layout_width="200dp"
             android:layout_height="200dp"
+            android:src="@drawable/ic_play"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/singer_text_view"
             app:layout_constraintBottom_toTopOf="@id/lyric_recycler_view"
-            app:cardCornerRadius="8dp"
             android:layout_marginTop="20dp"
-            >
-            <ImageView
-                android:id="@+id/thumbnail_image_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_play"
-                android:scaleType="fitXY"
-                />
-        </androidx.cardview.widget.CardView>
+            android:scaleType="fitXY"
+            android:contentDescription="TODO" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lyric_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/thumbnail_card_view"
+            app:layout_constraintTop_toBottomOf="@id/thumbnail_image_view"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginTop="20dp"
@@ -83,8 +75,6 @@
             android:id="@+id/music_seek_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:thumb="@drawable/seekbar_thumb"
-            android:progressDrawable="@drawable/seekbar"
             app:layout_constraintTop_toBottomOf="@id/lyric_recycler_view"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
@@ -99,34 +89,32 @@
             app:layout_constraintTop_toBottomOf="@id/music_seek_bar"
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
-            android:textColor="#FFAE42"
-            tools:text="@{playerViewModel.timeString}"
+            tools:text="@{viewModel.timer.toString()}"
 
             />
         <TextView
-            android:id="@+id/total_time_text_view"
+            android:id="@+id/totial_time_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000000"
             app:layout_constraintEnd_toEndOf="@id/music_seek_bar"
             app:layout_constraintTop_toBottomOf="@id/music_seek_bar"
             app:layout_constraintTop_toTopOf="@id/current_time_text_view"
             android:layout_marginEnd="10dp"
             android:layout_marginTop="5dp"
             tools:text="01.00"
-            android:text="@{playerViewModel.durationString}"
+            android:text="@{viewModel.duration.toString()}"
             />
         <Button
             android:id="@+id/play_button"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_marginTop="5dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/ic_play"
             app:layout_constraintTop_toBottomOf="@id/current_time_text_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:onClick="@{() -> playerMainViewModel.onPlayBtnClick()}"
+            android:onClick="@{() -> viewModel.onPlayBtnClick()}"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

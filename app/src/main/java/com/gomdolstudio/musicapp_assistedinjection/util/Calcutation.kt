@@ -5,17 +5,6 @@ import com.gomdolstudio.musicapp_assistedinjection.data.entity.Lyric
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-fun convertMillSecToString(time: Int, isItMillSec: Boolean): String{
-    var totalSec: Int = time
-    if (isItMillSec) totalSec = time / 10
-    val min: Int = totalSec / 60
-    val sec: Int = totalSec % 60
-    var minString = min.toString()
-    if (min < 10) minString = "0${minString}"
-    var secString = sec.toString()
-    if (sec < 10) secString = "0${secString}"
-    return "${minString}:${secString}"
-}
 
 fun convertTimeToInt(time: String): Int {
     val array = time.split(":")

@@ -15,6 +15,9 @@ import javax.inject.Singleton
 
 @Module(includes = [(ViewModelModule::class), (RetrofitModule::class)])
 class AppModule {
+    @Named("hello")
+    @Provides
+    fun provideHelloWorld() = "Hello World!"
 
     @Singleton
     @Provides

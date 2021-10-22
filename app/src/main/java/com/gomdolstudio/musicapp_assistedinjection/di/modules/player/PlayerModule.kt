@@ -8,7 +8,6 @@ import com.gomdolstudio.musicapp_assistedinjection.di.scope.ActivityContext
 import com.gomdolstudio.musicapp_assistedinjection.di.scope.ActivityScope
 import com.gomdolstudio.musicapp_assistedinjection.di.scope.FragmentScope
 import com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerActivity
-import com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerLyricsFragment
 import com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerMainFragment
 import dagger.Module
 import dagger.Provides
@@ -36,10 +35,6 @@ abstract class PlayerModule {
     @FragmentScope
     @ContributesAndroidInjector(modules = [(PlayerMainFragmentModule::class)])
     abstract fun getPlayerMainFragment(): PlayerMainFragment
-
-    @FragmentScope
-    @ContributesAndroidInjector(modules = [(PlayerLyricsFragmentModule::class)])
-    abstract fun getPlayerLyricsFragment(): PlayerLyricsFragment
 
 
 }

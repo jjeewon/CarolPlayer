@@ -3,8 +3,6 @@ package com.gomdolstudio.musicapp_assistedinjection.di.modules
 import androidx.lifecycle.ViewModel
 import com.gomdolstudio.musicapp_assistedinjection.di.ViewModelKey
 import com.gomdolstudio.musicapp_assistedinjection.di.factory.AssistedSavedStateViewModelFactory
-import com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerLyricsViewModel
-import com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerMainViewModel
 import com.gomdolstudio.musicapp_assistedinjection.ui.player.PlayerViewModel
 import com.squareup.inject.assisted.AssistedInject
 import com.squareup.inject.assisted.dagger2.AssistedModule
@@ -31,15 +29,5 @@ abstract class ViewModelModule {
     @ViewModelKey(PlayerViewModel::class)
     abstract fun bindsPlayerViewModel(factory: PlayerViewModel.Factory): AssistedSavedStateViewModelFactory<out ViewModel>
 
-    @Binds
-    @IntoMap
-    @ViewModelKey(PlayerMainViewModel::class)
-    abstract fun bindsPlayerMainViewModel(factory: PlayerMainViewModel.Factory): AssistedSavedStateViewModelFactory<out ViewModel>
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(PlayerLyricsViewModel::class)
-    abstract fun bindsPlayerLyricsViewModel(factory: PlayerLyricsViewModel.Factory): AssistedSavedStateViewModelFactory<out ViewModel>
 
 }
-

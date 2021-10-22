@@ -8,7 +8,6 @@ import com.gomdolstudio.musicapp_assistedinjection.data.entity.Lyric
 import com.gomdolstudio.musicapp_assistedinjection.data.entity.Lyrics
 import com.gomdolstudio.musicapp_assistedinjection.data.entity.Song
 import com.gomdolstudio.musicapp_assistedinjection.di.factory.AssistedSavedStateViewModelFactory
-import com.gomdolstudio.musicapp_assistedinjection.util.convertMillSecToString
 import com.gomdolstudio.musicapp_assistedinjection.util.convertTimeToInt
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -21,45 +20,48 @@ class PlayerViewModel @AssistedInject
 constructor(
     @Assisted private val savedStateHandle: SavedStateHandle,
     private val musicRetrofitService: MusicRetrofitService
-) : ViewModel(){
+
+) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
     var timer = MutableLiveData<Int>(0)
         set(time){
             savedStateHandle.set("timer",time)
             field = time
         }
+    var isItBound = false
+        set(bound){
+            savedStateHandle.set("isItBound", bound)
+            field = bound
+        }
 
-    var isItComback = false
-        set(comback){
-            savedStateHandle.set("isItComback",comback)
-            field = comback
+    var isItPlaying = false
+        set(play){
+            savedStateHandle.set("isItPlaying", play)
+            field = play
+        }
+
+
+    init {
+        savedStateHandle.get<Boolean>("isItPlaying")?.run {
+            isItPlaying = this
+        }
+    }
+
+    init {
+        savedStateHandle.get<Boolean>("isItBound")?.run {
+            isItBound = this
+        }
     }
 
     init {
         savedStateHandle.get<Int>("timer")?.run {
-            //timer.value = this
-            timer.postValue(this)
+            timer.value = this
         }
     }
 
-    init {
-        savedStateHandle.get<Boolean>("isItComback")?.run {
-            isItComback = this
-        }
-    }
-    private var currentPos: Int = 0
     private var liveSong: MutableLiveData<Song> = MutableLiveData()
-    fun loadMusic(){
-        compositeDisposable.add(musicRetrofitService.getMusic()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(liveSong::setValue))
-    }
-
-    var timeString: MutableLiveData<String> = MutableLiveData("00:00")
-    var durationString: MutableLiveData<String> = MutableLiveData("00:00")
-    private var liveLyricsMap: MutableLiveData<Map<Int,String>> = MutableLiveData()
-
+    private lateinit var liveLyrics: Lyrics
+    private var liveLyricList: MutableLiveData<ArrayList<Lyric>> = MutableLiveData()
     private var singer: LiveData<String> = Transformations.map(liveSong){
             song -> song.singer
     }
@@ -69,45 +71,60 @@ constructor(
     private var title: LiveData<String> = Transformations.map(liveSong){
             song -> song.title
     }
-
-    private var duration: MutableLiveData<Int> = MutableLiveData(0)
+    private var duration: LiveData<Int> = Transformations.map(liveSong){
+        song -> Integer.parseInt(song.duration)
+    }
 
     private var fileUrl: String = ""
 
-
-
-    fun getliveLyricsMap(): MutableLiveData<Map<Int,String>>{
-        return liveLyricsMap
+    private var playBtnClickEvent: MutableLiveData<Boolean> = MutableLiveData(isItPlaying)
+    fun loadMusic(){
+        compositeDisposable.add(musicRetrofitService.getMusic()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(liveSong::setValue))
     }
-
+    fun getPlayBtnClickEvent(): MutableLiveData<Boolean>{
+        return playBtnClickEvent
+    }
+    fun getBound(): Boolean{
+        return isItBound
+    }
     fun getTime() : MutableLiveData<Int>{
         return timer
     }
 
-    fun setCurrentPos(currentPos: Int){
-        this.currentPos = currentPos
-    }
-    fun getCurrentPos(): Int{
-        return currentPos
+    fun getLiveLyricList(): MutableLiveData<ArrayList<Lyric>>{
+        return liveLyricList
     }
 
-    fun setDuration(duration: Int){
-        this.duration.value = duration
-        this.durationString.value = convertMillSecToString(duration, false)
-
-    }
-
-    fun setLyricsMap(lyricsString: String){
+    fun setLyrics(lyricsString: String){
+        var lyricList : ArrayList<Lyric> = arrayListOf()
         var lyrics = mutableMapOf<Int,String>()
+        var timeList: ArrayList<Int> = arrayListOf()
+
         val array: List<String> = lyricsString.split("\n")
         for (a in array) {
             val timeLyrics = a.split("]")
             val time = convertTimeToInt(timeLyrics[0].substring(1, timeLyrics[0].length))
             lyrics[time] = timeLyrics[1]
+            timeList.add(time)
+            lyricList.add(Lyric(time,timeLyrics[1]))
         }
-        liveLyricsMap.value = lyrics
+        liveLyricList.value = lyricList
+        liveLyrics = Lyrics(lyrics,timeList)
     }
 
+    /**
+     * playBtn 클릭 이벤트 구현
+     */
+    fun onPlayBtnClick(){
+        // Fragment로 이벤트를 전달하도록
+        // MutableLiveData의 값을 변경한다.
+        isItPlaying = (!isItPlaying)
+        playBtnClickEvent.value = isItPlaying
+
+    }
 
     override fun onCleared() {
         super.onCleared()
@@ -126,7 +143,14 @@ constructor(
         return title
     }
 
-    fun getDuration(): MutableLiveData<Int>{
+    fun getDuration(): LiveData<Int>{
+        /*
+         val total = Integer.parseInt(duration.value!!)
+        val min: Int = total / 60
+        val sec = total % 60
+         */
+        //if (duration.value != null) durationInt = Integer.parseInt(duration.value!!)
+
         return duration
     }
 
@@ -142,7 +166,7 @@ constructor(
             ""
     }
 
+
     @AssistedInject.Factory
     interface Factory : AssistedSavedStateViewModelFactory<PlayerViewModel>
-
 }
