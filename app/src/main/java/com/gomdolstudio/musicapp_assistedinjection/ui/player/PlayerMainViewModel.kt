@@ -70,7 +70,7 @@ constructor(
     interface Factory : AssistedSavedStateViewModelFactory<PlayerMainViewModel>
 
     override fun onItemClick(lyric: Lyric) {
-        Log.d("moveF",lyric.lyric)
+
         lyricsItemClickEvent.value = true
     }
 }

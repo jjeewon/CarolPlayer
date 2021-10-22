@@ -48,7 +48,6 @@ class PlayerLyricsFragment: DaggerFragment() {
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
-            Log.d("lll","onServiceConnected")
             val binder = service as MusicService.LocalBinder
             musicService = binder.getService()
             playerLyricsViewModel.isItBound = true
@@ -61,8 +60,6 @@ class PlayerLyricsFragment: DaggerFragment() {
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
-            Log.d("lll","onServiceDisconnected")
-
         }
 
     }
@@ -73,7 +70,6 @@ class PlayerLyricsFragment: DaggerFragment() {
     }
 
     override fun onDestroy() {
-        Log.d("lll","onDestroy")
         super.onDestroy()
         playerLyricsViewModel.isItBound = false
         playerViewModel.timer.value = musicService.millSec
@@ -83,11 +79,9 @@ class PlayerLyricsFragment: DaggerFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.d("lll","onCreateView")
         return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Log.d("lll","onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         // binding.아이디.로 조작...
         if (savedInstanceState == null) {
@@ -118,7 +112,6 @@ class PlayerLyricsFragment: DaggerFragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("lll","onCreate")
         super.onCreate(savedInstanceState)
         playerViewModel = viewModelProvider.get(PlayerViewModel::class.java)
         playerLyricsViewModel = viewModelProvider.get(PlayerLyricsViewModel::class.java)
@@ -177,7 +170,6 @@ class PlayerLyricsFragment: DaggerFragment() {
     }
 
     fun moveFragment(cancelBtnClicked: Boolean){
-        Log.d("lll","설마 LYRics moveFragment왔다고?")
         if (cancelBtnClicked){
             scrollJob.cancel()
             highlightJob.cancel()
