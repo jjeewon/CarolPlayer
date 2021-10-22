@@ -59,8 +59,8 @@ data class Song(
 <!-- Table -->
 |Song|Type|Description|
 |--|--|--|
-|`singer`|String||
-|`album`|String||
+|`singer`|string||
+|`album`|string||
 |`title`|string||
 |`duration`|string||
 |`image`|string||
