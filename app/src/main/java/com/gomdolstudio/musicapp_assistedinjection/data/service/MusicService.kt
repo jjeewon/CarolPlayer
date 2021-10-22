@@ -13,7 +13,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import java.time.LocalDateTime
 
 class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
@@ -33,10 +32,8 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
 
     override fun onBind(intent: Intent): IBinder? {
-        if (!isItPlaying){
-            isItPlaying = true
-            startMusicTimer()
-        }
+        isItPlaying = true
+        startMusicTimer()
         return binder
     }
 
@@ -50,7 +47,6 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
     // 서비스가 호출될 때마다 호출 (음악재생)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
 
         if (intent!!.hasExtra("url"))
             url = intent.getStringExtra("url").toString()
@@ -93,7 +89,7 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
         startForeground(NOTIFICATION_ID, notification)
     }
 
-    fun stopForegroundService(){
+    private fun stopForegroundService(){
         stopForeground(true)
         stopSelf()
     }
@@ -105,21 +101,21 @@ class MusicService : DaggerService(), MediaPlayer.OnPreparedListener {
 
     override fun onPrepared(mediaPlayer: MediaPlayer) {
         mediaPlayer.seekTo(millSec*100)
+        Log.d("mpmp",millSec.toString())
         mediaPlayer.start()
     }
 
     private fun startMusicTimer(){
         GlobalScope.launch {
             while ( this@MusicService.millSec < duration && isItPlaying){
-                val time: LocalDateTime = LocalDateTime.now()
-                delay(100L)
+                delay(100)
                 this@MusicService.millSec += 1
             }
         }
 
     }
 
-    fun movePlayerTime(millSec: Int){
+    fun movePlayerTimeBySeekerBar(millSec: Int){
             this.millSec = millSec
             mp?.seekTo(millSec*100)
 
